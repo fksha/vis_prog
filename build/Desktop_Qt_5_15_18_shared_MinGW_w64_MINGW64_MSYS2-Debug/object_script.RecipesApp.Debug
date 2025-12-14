@@ -1,0 +1,13 @@
+debug/addrecipedialog.o
+debug/main.o
+debug/mainwindow.o
+debug/profiledialog.o
+debug/recipeviewdialog.o
+debug/searchdialog.o
+debug/user.o
+debug/qrc_icons.o
+debug/moc_addrecipedialog.o
+debug/moc_mainwindow.o
+debug/moc_profiledialog.o
+debug/moc_recipeviewdialog.o
+debug/moc_searchdialog.o

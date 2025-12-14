@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddRecipeDialog</class>
+ <widget class="QDialog" name="AddRecipeDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>900</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Добавить рецепт</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+QDialog { background-color: #ffffff; }
+QLabel { color: #ff3333; font-size: 16px; }
+QLabel#labelName, QLabel#labelTime, QLabel#labelCategory, QLabel#labelIngredients, QLabel#labelSteps, QLabel#currentStepLabel {
+    font-weight: bold;
+    color: #ff3333;
+    font-size: 16px;
+}
+QLineEdit, QTextEdit {
+    border: 1px solid #ced4da;
+    border-radius: 25px;
+    padding: 16px 20px;
+    background-color: white;
+    font-size: 16px;
+}
+QLineEdit:focus, QTextEdit:focus {
+    border-color: #ff3333;
+    background-color: white;
+}
+QLineEdit::placeholder, QTextEdit::placeholder {
+    color: #adb5bd;
+}
+QSpinBox {
+    border: 1px solid #ced4da;
+    border-radius: 25px;
+    padding: 16px 20px;
+    background-color: white;
+    font-size: 16px;
+}
+QSpinBox:focus {
+    border-color: #ff3333;
+}
+QSpinBox::up-button, QSpinBox::down-button {
+    border: none;
+    border-radius: 0px;
+    background: transparent;
+}
+QComboBox {
+    border: 1px solid #ced4da;
+    border-radius: 25px;
+    padding: 16px 20px;
+    background-color: white;
+    font-size: 16px;
+}
+QComboBox:focus {
+    border-color: #ff3333;
+}
+QComboBox::drop-down {
+    border: none;
+    padding-right: 20px;
+}
+QComboBox::down-arrow {
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #6c757d;
+    width: 0;
+    height: 0;
+}
+QPushButton#backButton {
+    background: transparent;
+    border: none;
+    color: #ff3333;
+    font-size: 24px;
+    padding: 8px;
+}
+QPushButton#backButton:hover {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+QPushButton#saveButton {
+    background-color: #ff3333;
+    color: white;
+    font-weight: bold;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 16px;
+}
+QPushButton#saveButton:hover {
+    background-color: #ff2222;
+}
+QPushButton#addIngredientButton, QPushButton#addStepButton, QPushButton#addPhotoButton {
+    background: transparent;
+    border: none;
+    padding: 8px;
+}
+QPushButton#addIngredientButton:hover, QPushButton#addStepButton:hover, QPushButton#addPhotoButton:hover {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+QListWidget {
+    border: none;
+    background: transparent;
+}
+QListWidget::item {
+    padding: 8px;
+    margin: 4px 0;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+QLabel#photoLabel {
+    border: 2px dashed #ced4da;
+    border-radius: 20px;
+    background-color: #f8f9fa;
+}
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <property name="margin">
+    <number>20</number>
+   </property>
+   <!-- Верхняя панель с кнопками -->
+   <item>
+    <layout class="QHBoxLayout" name="topBarLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="backButton">
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/icons/arrow.png</normaloff>:/icons/icons/arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="topSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveButton">
+       <property name="text">
+        <string>Добавить</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <!-- Фото и основная информация -->
+   <item>
+    <layout class="QHBoxLayout" name="photoInfoLayout">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <!-- Фото с иконкой добавления -->
+     <item>
+      <layout class="QVBoxLayout" name="photoLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="photoLabel">
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border: 2px dashed #ced4da; border-radius: 20px; background-color: #f8f9fa;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="addPhotoButton">
+         <property name="icon">
+          <iconset resource="icons.qrc">
+           <normaloff>:/icons/icons/add_photo.png</normaloff>:/icons/icons/add_photo.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <!-- Название и время справа от фото -->
+     <item>
+      <layout class="QVBoxLayout" name="nameTimeLayout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="labelName">
+         <property name="text">
+          <string>Название блюда:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="nameLineEdit">
+         <property name="placeholderText">
+          <string>Введите название блюдо...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelTime">
+         <property name="text">
+          <string>Время приготовления:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="timeLayout">
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QSpinBox" name="timeSpinBox">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="minutesLabel">
+           <property name="text">
+            <string>минут</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: #212529; font-size: 16px; font-weight: normal;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="timeSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="nameTimeSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <!-- Категория -->
+   <item>
+    <widget class="QLabel" name="labelCategory">
+     <property name="text">
+      <string>Категория блюда:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="categoryComboBox">
+     <property name="placeholderText">
+      <string>Выберите из списка...</string>
+     </property>
+     <property name="editable">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <!-- Ингредиенты -->
+   <item>
+    <widget class="QLabel" name="labelIngredients">
+     <property name="text">
+      <string>Ингредиенты:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="ingredientLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLineEdit" name="ingredientNameEdit">
+       <property name="placeholderText">
+        <string>Введите название ингредиента...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="ingredientQuantitySpinBox">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="ingredientUnitComboBox">
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addIngredientButton">
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/icons/add.png</normaloff>:/icons/icons/add.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QListWidget" name="ingredientsListWidget">
+     <property name="maximumHeight">
+      <number>150</number>
+     </property>
+    </widget>
+   </item>
+   <!-- Шаги -->
+   <item>
+    <widget class="QLabel" name="labelSteps">
+     <property name="text">
+      <string>ШАГИ:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="currentStepLabel">
+     <property name="text">
+      <string>ШАГ 1:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="stepLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTextEdit" name="stepDescriptionEdit">
+       <property name="placeholderText">
+        <string>Введите пошаговое описание приготовления блюдо...</string>
+       </property>
+       <property name="maximumHeight">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addStepButton">
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/icons/add.png</normaloff>:/icons/icons/add.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QListWidget" name="stepsListWidget">
+     <property name="maximumHeight">
+      <number>200</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="bottomSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>backButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AddRecipeDialog</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

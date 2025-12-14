@@ -1,0 +1,13 @@
+release/addrecipedialog.o
+release/main.o
+release/mainwindow.o
+release/profiledialog.o
+release/recipeviewdialog.o
+release/searchdialog.o
+release/user.o
+release/qrc_icons.o
+release/moc_addrecipedialog.o
+release/moc_mainwindow.o
+release/moc_profiledialog.o
+release/moc_recipeviewdialog.o
+release/moc_searchdialog.o

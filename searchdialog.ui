@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SearchDialog</class>
+ <widget class="QDialog" name="SearchDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>927</width>
+    <height>850</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Поиск рецептов</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog {
+    background-color: #ffffff;
+}
+QLineEdit {
+    border: 2px solid #ced4da;
+    border-radius: 25px;
+    padding: 14px 20px;
+    font-size: 16px;
+    background-color: #f8f9fa;
+}
+QLineEdit:focus {
+    border-color: #ff3333;
+    background-color: white;
+}
+QPushButton {
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-size: 14px;
+}
+QPushButton#backButton {
+    background-color: transparent;
+    border: none;
+    min-width: 45px;
+    min-height: 45px;
+}
+QPushButton#backButton:hover {
+    background-color: #f0f0f0;
+    border-radius: 22px;
+}
+QPushButton#resetFiltersButton {
+    background-color: #ff3333;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+QPushButton#resetFiltersButton:hover {
+    background-color: #ff5252;
+}
+QPushButton#findButton {
+    background-color: #ff3333;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+QPushButton#findButton:hover {
+    background-color: #ff5252;
+}
+QPushButton#findButton:disabled {
+    background-color: #ced4da;
+    color: #6c757d;
+}
+QPushButton.filterChip {
+    background-color: #e9ecef;
+    color: #212529;
+    border: 2px solid #ced4da;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    text-align: left;
+}
+QPushButton.filterChip:hover {
+    background-color: #dee2e6;
+}
+QPushButton.filterChip.selected {
+    background-color: #ff3333;
+    color: white;
+    border-color: #ff3333;
+}
+QListWidget {
+    border: none;
+    background: transparent;
+}
+QListWidget::item {
+    padding: 0px;
+    margin: 12px 20px;
+    background: transparent;
+    border: none;
+    min-height: 120px;
+}
+QListWidget::item:selected {
+    background: transparent;
+    border: none;
+}
+QScrollArea {
+    border: none;
+    background: transparent;
+}
+QLabel.ingredientChip {
+    background-color: #ff3333;
+    color: white;
+    border-radius: 15px;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+QLabel.ingredientChip QLabel {
+    color: white;
+}
+QComboBox {
+    border: 2px solid #ced4da;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    min-height: 20px;
+}
+QComboBox:focus {
+    border-color: #ff3333;
+    background-color: white;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+QComboBox QAbstractItemView {
+    border: 2px solid #ced4da;
+    border-radius: 10px;
+    background-color: white;
+    selection-background-color: #ff3333;
+    selection-color: white;
+}
+QSpinBox {
+    border: 2px solid #ced4da;
+    border-radius: 10px;
+    padding: 4px 8px;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    min-width: 70px;
+}
+QSpinBox:focus {
+    border-color: #ff3333;
+    background-color: white;
+}
+QSlider::groove:horizontal {
+    border: 1px solid #ced4da;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+QSlider::handle:horizontal {
+    background: #ff3333;
+    border: 2px solid white;
+    width: 20px;
+    height: 20px;
+    margin: -6px 0;
+    border-radius: 10px;
+}
+QSlider::handle:horizontal:hover {
+    background: #ff5252;
+}</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="topBarLayout">
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <property name="margin">
+      <number>20</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="backButton">
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/icons/arrow.png</normaloff>:/icons/icons/arrow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string>background-color: transparent; border: none;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="searchIconButton">
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/icons/search.png</normaloff>:/icons/icons/search.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string>background-color: transparent; border: none;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="searchLineEdit">
+       <property name="placeholderText">
+        <string>Поиск рецептов...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="clearSearchButton">
+       <property name="text">
+        <string>✕</string>
+       </property>
+       <property name="styleSheet">
+        <string>background-color: transparent; color: #ff3333; font-size: 18px; font-weight: bold; border: none; min-width: 30px; min-height: 30px;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="filtersLayout">
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <property name="margin">
+      <number>20</number>
+     </property>
+     <item>
+      <widget class="QComboBox" name="categoriesComboBox">
+       <property name="placeholderText">
+        <string>Категории</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="ingredientsComboBox">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string>Ингредиенты</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="timeFilterButton">
+       <property name="text">
+        <string>Время приготовления ▾</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="filtersSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="resetFiltersButton">
+       <property name="text">
+        <string>Сбросить все фильтры</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="selectedFiltersWidget">
+     <property name="maximumHeight">
+      <number>80</number>
+     </property>
+     <layout class="QHBoxLayout" name="selectedFiltersLayout">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="margin">
+       <number>20</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="timePanel">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="timePanelLayout">
+      <property name="margin">
+       <number>20</number>
+      </property>
+      <property name="spacing">
+       <number>16</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="timeRangeLayout">
+        <property name="spacing">
+         <number>16</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="timeMinLabel">
+          <property name="text">
+           <string>От: 5 мин</string>
+          </property>
+          <property name="minimumWidth">
+           <number>80</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="timeMinSlider">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="value">
+           <number>5</number>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBelow</enum>
+          </property>
+          <property name="tickInterval">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="timeMinSpinBox">
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="value">
+           <number>5</number>
+          </property>
+          <property name="suffix">
+           <string> мин</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="timeMaxLayout">
+        <property name="spacing">
+         <number>16</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="timeMaxLabel">
+          <property name="text">
+           <string>До: 300 мин</string>
+          </property>
+          <property name="minimumWidth">
+           <number>80</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="timeMaxSlider">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="value">
+           <number>300</number>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBelow</enum>
+          </property>
+          <property name="tickInterval">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="timeMaxSpinBox">
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="value">
+           <number>300</number>
+          </property>
+          <property name="suffix">
+           <string> мин</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="resultsListWidget"/>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
+
