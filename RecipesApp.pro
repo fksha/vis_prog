@@ -17,7 +17,9 @@ SOURCES += \
     profiledialog.cpp \
     recipeviewdialog.cpp \
     searchdialog.cpp \
-    user.cpp
+    user.cpp \
+    recipefactory.cpp \
+    filterstrategy.cpp
 
 HEADERS += \
     addrecipedialog.h \
@@ -25,7 +27,9 @@ HEADERS += \
     profiledialog.h \
     recipeviewdialog.h \
     searchdialog.h \
-    user.h
+    user.h \
+    recipefactory.h \
+    filterstrategy.h
 
 FORMS += \
     addrecipedialog.ui \

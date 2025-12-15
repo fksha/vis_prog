@@ -29,6 +29,7 @@ private slots:
     void on_navRecipesButton_clicked();
     void on_favoritesNavFavoritesButton_clicked();
     void on_favoritesNavRecipesButton_clicked();
+    void on_favoritesNavProfileButton_clicked();
     void on_recipeItemDoubleClicked(QListWidgetItem *item);
     void on_searchButton_clicked();
     void on_favoritesSearchButton_clicked();

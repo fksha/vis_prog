@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->navRecipesButton, &QToolButton::clicked, this, &MainWindow::on_navRecipesButton_clicked);
     connect(ui->favoritesNavFavoritesButton, &QToolButton::clicked, this, &MainWindow::on_favoritesNavFavoritesButton_clicked);
     connect(ui->favoritesNavRecipesButton, &QToolButton::clicked, this, &MainWindow::on_favoritesNavRecipesButton_clicked);
+    connect(ui->favoritesNavProfileButton, &QToolButton::clicked, this, &MainWindow::on_favoritesNavProfileButton_clicked);
     
     // Подключаем обработчик клика на карточки рецептов
     connect(ui->recipesListWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::on_recipeItemDoubleClicked);
@@ -192,7 +193,7 @@ void MainWindow::loadRecipes()
         QWidget *card = new QWidget();
         card->setStyleSheet("background-color: white; border-radius: 16px;");
         card->setMinimumWidth(600); // Увеличиваем минимальную ширину карточки
-        card->setMinimumHeight(150);
+        card->setMinimumHeight(120);
         // Добавляем тень для карточки
         QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
         shadow->setBlurRadius(10);
@@ -261,7 +262,7 @@ void MainWindow::loadRecipes()
         layout->addLayout(textLayout, 1);
 
         card->setLayout(layout);
-        item->setSizeHint(QSize(0, 120));  // Высота карточки
+        item->setSizeHint(QSize(0, 150));  // Высота карточки соответствует минимальной высоте
 
         ui->recipesListWidget->addItem(item);
         ui->recipesListWidget->setItemWidget(item, card);
@@ -298,6 +299,7 @@ void MainWindow::loadFavorites()
         QWidget *card = new QWidget();
         card->setStyleSheet("background-color: white; border-radius: 16px;");
         card->setMinimumWidth(600); // Увеличиваем минимальную ширину карточки
+        card->setMinimumHeight(120);
         
         // Добавляем тень для карточки
         QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
@@ -362,7 +364,7 @@ void MainWindow::loadFavorites()
         layout->addLayout(textLayout, 1);
 
         card->setLayout(layout);
-        item->setSizeHint(QSize(0, 120));  // Высота карточки
+        item->setSizeHint(QSize(0, 150));  // Высота карточки соответствует минимальной высоте
 
         ui->favoritesListWidget->addItem(item);
         ui->favoritesListWidget->setItemWidget(item, card);
@@ -391,6 +393,11 @@ void MainWindow::on_favoritesNavFavoritesButton_clicked()
 void MainWindow::on_favoritesNavRecipesButton_clicked()
 {
     showMainInterface();
+}
+
+void MainWindow::on_favoritesNavProfileButton_clicked()
+{
+    showProfileInterface();
 }
 
 void MainWindow::on_recipeItemDoubleClicked(QListWidgetItem *item)

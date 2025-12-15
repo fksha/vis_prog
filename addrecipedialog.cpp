@@ -1,5 +1,6 @@
 #include "addrecipedialog.h"
 #include "ui_addrecipedialog.h"
+#include "recipefactory.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSqlQuery>
@@ -335,108 +336,14 @@ void AddRecipeDialog::on_saveButton_clicked()
     }
     int categoryId = catQuery.value(0).toInt();
 
-    // Обрабатываем фото
-    QString savedPhotoPath = "";
-    if (currentRecipeId > 0) {
-        // При редактировании: если фото не изменилось, используем старое
-        QSqlQuery oldPhotoQuery;
-        oldPhotoQuery.prepare("SELECT photo_path FROM recipes WHERE id = ?");
-        oldPhotoQuery.addBindValue(currentRecipeId);
-        if (oldPhotoQuery.exec() && oldPhotoQuery.next()) {
-            QString oldPhotoPath = oldPhotoQuery.value(0).toString();
-            // Проверяем, изменилось ли фото
-            if (!photoPath.isEmpty() && photoPath != oldPhotoPath && QFile::exists(photoPath)) {
-                // Фото изменилось - копируем новое
-                QDir dir;
-                if (!dir.exists("photos")) {
-                    dir.mkpath("photos");
-                }
-                QFileInfo fileInfo(photoPath);
-                QString newFileName = QString("photos/recipe_%1_%2.%3")
-                    .arg(currentUserId)
-                    .arg(QDateTime::currentDateTime().toSecsSinceEpoch())
-                    .arg(fileInfo.suffix());
-                
-                if (QFile::copy(photoPath, newFileName)) {
-                    savedPhotoPath = newFileName;
-                } else {
-                    savedPhotoPath = photoPath;
-                }
-            } else {
-                // Фото не изменилось - используем старое
-                savedPhotoPath = oldPhotoPath;
-            }
-        }
-    } else {
-        // Новый рецепт - копируем фото
-        if (!photoPath.isEmpty() && QFile::exists(photoPath)) {
-            QDir dir;
-            if (!dir.exists("photos")) {
-                dir.mkpath("photos");
-            }
-            QFileInfo fileInfo(photoPath);
-            QString newFileName = QString("photos/recipe_%1_%2.%3")
-                .arg(currentUserId)
-                .arg(QDateTime::currentDateTime().toSecsSinceEpoch())
-                .arg(fileInfo.suffix());
-            
-            if (QFile::copy(photoPath, newFileName)) {
-                savedPhotoPath = newFileName;
-            } else {
-                savedPhotoPath = photoPath;
-            }
-        }
-    }
-
-    // Начинаем транзакцию для целостности данных
-    QSqlDatabase db = QSqlDatabase::database();
-    db.transaction();
-
-    QSqlQuery query;
-    int recipeId = currentRecipeId;
+    // Создаем шаблон рецепта
+    RecipeTemplate template_;
+    template_.name = name;
+    template_.photoPath = photoPath;
+    template_.time = time;
+    template_.categoryId = categoryId;
     
-    if (currentRecipeId > 0) {
-        // Редактирование существующего рецепта
-        query.prepare("UPDATE recipes SET name = ?, photo_path = ?, time = ?, category_id = ? WHERE id = ? AND user_id = ?");
-        query.addBindValue(name);
-        query.addBindValue(savedPhotoPath);
-        query.addBindValue(time);
-        query.addBindValue(categoryId);
-        query.addBindValue(currentRecipeId);
-        query.addBindValue(currentUserId);
-        
-        if (!query.exec()) {
-            db.rollback();
-            QMessageBox::critical(this, "Ошибка", "Не удалось обновить рецепт: " + query.lastError().text());
-            return;
-        }
-        
-        // Удаляем старые ингредиенты и шаги
-        query.prepare("DELETE FROM ingredients WHERE recipe_id = ?");
-        query.addBindValue(currentRecipeId);
-        query.exec();
-        
-        query.prepare("DELETE FROM steps WHERE recipe_id = ?");
-        query.addBindValue(currentRecipeId);
-        query.exec();
-    } else {
-        // Добавление нового рецепта
-        query.prepare("INSERT INTO recipes (user_id, name, photo_path, time, category_id) VALUES (?, ?, ?, ?, ?)");
-        query.addBindValue(currentUserId);
-        query.addBindValue(name);
-        query.addBindValue(savedPhotoPath);
-        query.addBindValue(time);
-        query.addBindValue(categoryId);
-        if (!query.exec()) {
-            db.rollback();
-            QMessageBox::critical(this, "Ошибка", "Не удалось сохранить рецепт: " + query.lastError().text());
-            return;
-        }
-        
-        recipeId = query.lastInsertId().toInt();
-    }
-
-    // Сохраняем ингредиенты
+    // Собираем ингредиенты
     for (int i = 0; i < ui->ingredientsListWidget->count(); ++i) {
         QString text = ui->ingredientsListWidget->item(i)->text();
         QString ingName = text.section(" — ", 0, 0);
@@ -444,39 +351,33 @@ void AddRecipeDialog::on_saveButton_clicked()
         if (quantity.isEmpty()) {
             quantity = "по вкусу";
         }
-
-        query.prepare("INSERT INTO ingredients (recipe_id, name, quantity) VALUES (?, ?, ?)");
-        query.addBindValue(recipeId);
-        query.addBindValue(ingName);
-        query.addBindValue(quantity);
-        if (!query.exec()) {
-            db.rollback();
-            QMessageBox::critical(this, "Ошибка", "Не удалось сохранить ингредиент: " + query.lastError().text());
-            return;
-        }
+        template_.ingredients.append(IngredientData(ingName, quantity));
     }
-
-    // Сохраняем шаги
+    
+    // Собираем шаги
     for (int i = 0; i < ui->stepsListWidget->count(); ++i) {
         QString text = ui->stepsListWidget->item(i)->text();
         QString desc = text.section(". ", 1);
-
-        query.prepare("INSERT INTO steps (recipe_id, step_number, description) VALUES (?, ?, ?)");
-        query.addBindValue(recipeId);
-        query.addBindValue(i + 1);
-        query.addBindValue(desc);
-        if (!query.exec()) {
-            db.rollback();
-            QMessageBox::critical(this, "Ошибка", "Не удалось сохранить шаг: " + query.lastError().text());
-            return;
-        }
+        template_.steps.append(StepData(i + 1, desc));
     }
 
-    // Коммитим транзакцию
-    if (!db.commit()) {
-        db.rollback();
-        QMessageBox::critical(this, "Ошибка", "Не удалось сохранить данные в базу");
-        return;
+    // Используем Factory для создания/обновления рецепта
+    RecipeFactory* factory = RecipeFactoryManager::getFactory("standard");
+    int recipeId = -1;
+    
+    if (currentRecipeId > 0) {
+        // Редактирование существующего рецепта
+        if (!factory->updateRecipe(currentRecipeId, currentUserId, template_)) {
+            QMessageBox::critical(this, "Ошибка", "Не удалось обновить рецепт");
+            return;
+        }
+    } else {
+        // Добавление нового рецепта
+        recipeId = factory->createRecipe(currentUserId, template_);
+        if (recipeId < 0) {
+            QMessageBox::critical(this, "Ошибка", "Не удалось сохранить рецепт");
+            return;
+        }
     }
 
     accept(); // Успешно закрываем диалог

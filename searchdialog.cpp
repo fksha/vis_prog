@@ -1,6 +1,7 @@
 #include "searchdialog.h"
 #include "ui_searchdialog.h"
 #include "recipeviewdialog.h"
+#include "filterstrategy.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QFile>
@@ -455,9 +456,6 @@ void SearchDialog::updateFilterButtons()
 
 QList<int> SearchDialog::getRelevantRecipeIds()
 {
-    QList<int> recipeIds;
-    QMap<int, int> relevance; // recipeId -> score
-    
     // Базовый запрос в зависимости от режима поиска
     QString baseQuery;
     if (searchMode == SearchFavorites) {
@@ -474,91 +472,51 @@ QList<int> SearchDialog::getRelevantRecipeIds()
     query.addBindValue(currentUserId);
     query.exec();
     
+    // Собираем данные рецептов
+    QList<RecipeFilterData> recipes;
     while (query.next()) {
         int recipeId = query.value(0).toInt();
         QString name = query.value(1).toString();
         int time = query.value(2).toInt();
         int categoryId = query.value(4).toInt();
         
-        int score = 0;
-        bool matches = true;
+        RecipeFilterData recipeData(recipeId, name, time, categoryId);
         
-        // Фильтр по названию
-        if (!searchText.isEmpty()) {
-            if (name.contains(searchText, Qt::CaseInsensitive)) {
-                // Точное совпадение - максимальный приоритет
-                if (name.compare(searchText, Qt::CaseInsensitive) == 0) {
-                    score += 1000;
-                } else if (name.startsWith(searchText, Qt::CaseInsensitive)) {
-                    score += 500;
-                } else {
-                    score += 100;
-                }
-            } else {
-                matches = false;
-            }
+        // Загружаем ингредиенты для рецепта
+        QSqlQuery ingQuery;
+        ingQuery.prepare("SELECT name FROM ingredients WHERE recipe_id = ?");
+        ingQuery.addBindValue(recipeId);
+        ingQuery.exec();
+        
+        while (ingQuery.next()) {
+            recipeData.ingredients.insert(ingQuery.value(0).toString());
         }
         
-        // Фильтр по категориям
-        if (!selectedCategoryIds.isEmpty()) {
-            if (selectedCategoryIds.contains(categoryId)) {
-                score += 50;
-            } else {
-                matches = false;
-            }
-        }
-        
-        // Фильтр по времени
-        if (time < minTime || time > maxTime) {
-            matches = false;
-        }
-        
-        // Фильтр по ингредиентам
-        if (!selectedIngredients.isEmpty()) {
-            QSqlQuery ingQuery;
-            ingQuery.prepare("SELECT name FROM ingredients WHERE recipe_id = ?");
-            ingQuery.addBindValue(recipeId);
-            ingQuery.exec();
-            
-            QSet<QString> recipeIngredients;
-            while (ingQuery.next()) {
-                recipeIngredients.insert(ingQuery.value(0).toString());
-            }
-            
-            int matchingIngredients = 0;
-            for (const QString &ing : selectedIngredients) {
-                // Проверяем точное совпадение или частичное
-                bool found = false;
-                for (const QString &recipeIng : recipeIngredients) {
-                    if (recipeIng.contains(ing, Qt::CaseInsensitive) || 
-                        ing.contains(recipeIng, Qt::CaseInsensitive)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) {
-                    matchingIngredients++;
-                }
-            }
-            
-            if (matchingIngredients > 0) {
-                // Сортируем по релевантности: больше совпадений = выше приоритет
-                score += matchingIngredients * 200;
-            } else {
-                matches = false;
-            }
-        }
-        
-        if (matches) {
-            recipeIds.append(recipeId);
-            relevance[recipeId] = score;
-        }
+        recipes.append(recipeData);
     }
     
-    // Сортируем по релевантности (убывание)
-    std::sort(recipeIds.begin(), recipeIds.end(), [&relevance](int a, int b) {
-        return relevance[a] > relevance[b];
-    });
+    // Используем паттерн Strategy для фильтрации
+    FilterContext filterContext;
+    
+    // Добавляем стратегии в зависимости от активных фильтров
+    if (!searchText.isEmpty()) {
+        filterContext.addStrategy(new NameFilterStrategy(searchText));
+    }
+    
+    if (!selectedCategoryIds.isEmpty()) {
+        filterContext.addStrategy(new CategoryFilterStrategy(selectedCategoryIds));
+    }
+    
+    if (minTime > 5 || maxTime < 300) {
+        filterContext.addStrategy(new TimeFilterStrategy(minTime, maxTime));
+    }
+    
+    if (!selectedIngredients.isEmpty()) {
+        filterContext.addStrategy(new IngredientFilterStrategy(selectedIngredients));
+    }
+    
+    // Применяем фильтры
+    QList<int> recipeIds = filterContext.filterRecipes(recipes);
     
     return recipeIds;
 }
@@ -606,6 +564,8 @@ void SearchDialog::showRecipeCard(int recipeId, const QString &name, int time, c
     
     QWidget *card = new QWidget();
     card->setStyleSheet("background-color: white; border-radius: 16px;");
+    card->setMinimumWidth(600);
+    card->setMinimumHeight(120);
     
     QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
     shadow->setBlurRadius(10);
@@ -648,9 +608,14 @@ void SearchDialog::showRecipeCard(int recipeId, const QString &name, int time, c
     nameLayout->addWidget(nameLabel);
     nameLayout->addStretch();
     
-    // Сердечко избранного
-    QLabel *heart = new QLabel(isFavourite ? "❤" : "🤍");
-    heart->setStyleSheet("font-size: 24px; color: #ff3333;");
+    // Сердечко избранного - используем иконку для избранных, эмодзи для не избранных (как в MainWindow)
+    QLabel *heart = new QLabel();
+    if (isFavourite) {
+        heart->setPixmap(QPixmap(":/icons/icons/favorites.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    } else {
+        heart->setText("🤍");
+        heart->setStyleSheet("font-size: 24px; color: #ff3333;");
+    }
     heart->setCursor(Qt::PointingHandCursor);
     heart->setProperty("recipeId", recipeId);
     heart->setProperty("isFavourite", isFavourite);
@@ -667,7 +632,7 @@ void SearchDialog::showRecipeCard(int recipeId, const QString &name, int time, c
     layout->addLayout(textLayout, 1);
     
     card->setLayout(layout);
-    item->setSizeHint(QSize(0, 120));
+    item->setSizeHint(QSize(0, 150));  // Высота карточки соответствует минимальной высоте
     
     ui->resultsListWidget->addItem(item);
     ui->resultsListWidget->setItemWidget(item, card);
@@ -687,7 +652,16 @@ void SearchDialog::toggleFavourite(QLabel *heartLabel, int recipeId)
     query.addBindValue(recipeId);
     query.exec();
     
+    // Обновляем иконку (как в MainWindow)
     isFavourite = !isFavourite;
-    heartLabel->setText(isFavourite ? "❤" : "🤍");
+    if (isFavourite) {
+        heartLabel->clear();
+        heartLabel->setPixmap(QPixmap(":/icons/icons/favorites.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        heartLabel->setStyleSheet("");
+    } else {
+        heartLabel->clear();
+        heartLabel->setText("🤍");
+        heartLabel->setStyleSheet("font-size: 24px; color: #ff3333;");
+    }
     heartLabel->setProperty("isFavourite", isFavourite);
 }
